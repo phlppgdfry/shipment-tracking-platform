@@ -23,7 +23,7 @@ The real SQL-backed candidate was tested through `http://localhost:5001`. Deskto
 
 Formal automated suites: **132 PortOps/contract tests, 23 KPI tests, 31 shipment unit tests, 15 shipment integration tests (including 2 real-SQL tests), and 6 dashboard mapping tests**. Total: **207**, plus the browser flow, independent NuGet consumer and real JWT HTTP smoke checks. CI is the authoritative repeatable verification for the checked-in release.
 
-[Browser proof JSON](assets/browser-proof.json) · [API proof JSON](assets/api-proof.json) · [Recorded workflow](assets/shipment-desk-walkthrough.mp4)
+[Cold-start proof JSON](assets/cold-start-proof.json) · [Browser proof JSON](assets/browser-proof.json) · [API proof JSON](assets/api-proof.json) · [Recorded workflow](assets/shipment-desk-walkthrough.mp4)
 
 ## Visual fidelity ledger
 
@@ -65,3 +65,9 @@ Material layout repairs: reduced inspector density, moved upload/status actions 
 Run `python3 scripts/prepare-demo.py`, the .NET and mapping suites, then start a fresh synthetic Compose project. Provide the local dispatcher password only through the test process environment and run `npm --prefix demo run test:browser` and `python3 scripts/package-smoke.py`. Browser tests require the documented baseline, so use a disposable fresh fixture database rather than erasing real data. CI executes this sequence automatically.
 
 Public recordings contain only synthetic records and masked password inputs; no JWT tokens or local secret values are attached. The automated fixture run is not a production certification or a human usability study.
+
+## Released-image first run
+
+A fresh clone used `python3 scripts/start-demo.py` with a new private configuration and empty database. The published linux/amd64 image was pulled and reached healthy SQL/API state; real login returned three baseline shipments and versioned envelopes, and the bundled npm module was served. No source compilation, SDK, Node installation or package-registry login was requested by the helper. This run used the existing Docker installation/image cache and is not a cold-machine timing benchmark.
+
+[Repeatable source CI](https://github.com/phlppgdfry/shipment-tracking-platform/actions/runs/38315102599) · [Successful container publication and bundled-image QA](https://github.com/phlppgdfry/shipment-tracking-platform/actions/runs/38315529603). Published digest: `sha256:e5d7f25ecaabd070e7d2c3f2436d3a0def6cf3dcf417d6f2f24652f1e1ac0391`.

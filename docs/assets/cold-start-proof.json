@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "freshClone": true,
+  "emptyDemoDatabase": true,
+  "helper": "scripts/start-demo.py",
+  "image": "ghcr.io/phlppgdfry/shipment-tracking-api:0.2.0",
+  "imageDigest": "sha256:e5d7f25ecaabd070e7d2c3f2436d3a0def6cf3dcf417d6f2f24652f1e1ac0391",
+  "health": 200,
+  "baselineShipments": 3,
+  "versionedEnvelopes": true,
+  "bundledKpiModule": true,
+  "sourceBuildRequired": false,
+  "credentialsPrinted": false
+}
