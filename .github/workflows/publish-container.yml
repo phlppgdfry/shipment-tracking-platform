@@ -1,0 +1,54 @@
+name: Publish shipment container
+on:
+  release:
+    types: [published]
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: startsWith(github.event.release.tag_name, 'package-v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      SQL_SA_PASSWORD: PackageCI-Synthetic-Sql-123!
+      JWT_SECRET: package-ci-only-synthetic-jwt-key-12345678901234567890
+      DEMO_DISPATCHER_PASSWORD: PackageCI-Synthetic-Demo-123!
+      SHIPMENT_IMAGE: shipment-package:verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet test ShipmentTracking.sln --configuration Release --logger "trx;LogFileName=package-tests.trx"
+      - name: Build candidate
+        run: docker build --file src/WebAPI/Dockerfile --tag "$SHIPMENT_IMAGE" --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" --label "org.opencontainers.image.description=Shipment tracking API with SQL Server persistence, JWT authentication and a synthetic local demo" --label "org.opencontainers.image.licenses=MIT" .
+      - name: Start real database and packaged API
+        run: docker compose -f docker-compose.package.yml up -d --wait --wait-timeout 300
+      - name: Exercise packaged API
+        run: python3 scripts/package-smoke.py
+      - name: Log in to GitHub Container Registry
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
+      - name: Publish tested image
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="${RELEASE_TAG#package-v}"
+          docker tag "$SHIPMENT_IMAGE" "ghcr.io/${{ github.repository_owner }}/shipment-tracking-api:$VERSION"
+          docker tag "$SHIPMENT_IMAGE" "ghcr.io/${{ github.repository_owner }}/shipment-tracking-api:latest"
+          docker push "ghcr.io/${{ github.repository_owner }}/shipment-tracking-api:$VERSION"
+          docker push "ghcr.io/${{ github.repository_owner }}/shipment-tracking-api:latest"
+      - name: Capture failure logs
+        if: failure()
+        run: docker compose -f docker-compose.package.yml logs --no-color
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: package-test-results
+          path: '**/TestResults/*.trx'
+      - name: Clean up demonstration
+        if: always()
+        run: docker compose -f docker-compose.package.yml down -v

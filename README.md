@@ -97,3 +97,7 @@ The infrastructure is declared in [infra/main.bicep](infra/main.bicep). Deployme
 - **Idempotency at the HTTP boundary:** retry safety is persisted with a unique request scope/key constraint.
 - **Cache-aside:** shipment details are cached for five minutes and invalidated after status changes.
 - **Transactional outbox:** publishing is separated from HTTP processing without losing events when Service Bus is unavailable.
+
+## Published container package
+
+[Run the packaged API](docs/PACKAGE.md) using `ghcr.io/phlppgdfry/shipment-tracking-api:0.1.0`. The local Compose example includes SQL Server, an opt-in synthetic dispatcher and sample shipment. Releases publish only after the real container passes integration and HTTP smoke tests.

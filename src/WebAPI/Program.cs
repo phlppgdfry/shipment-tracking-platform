@@ -220,6 +220,8 @@ using (var roleScope = app.Services.CreateScope())
         if (!await roleManager.RoleExistsAsync(role)) await roleManager.CreateAsync(new IdentityRole(role));
 }
 
+await ShipmentTracking.WebAPI.Demo.PackageDemoSeeder.SeedAsync(app);
+
 await app.RunAsync();
 
 // Testbaar maken via WebApplicationFactory
