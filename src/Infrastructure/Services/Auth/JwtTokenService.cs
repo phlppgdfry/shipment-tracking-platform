@@ -14,7 +14,7 @@ public sealed class JwtTokenService(IConfiguration configuration)
     private readonly string _audience = configuration["JwtSettings:Audience"] ?? "ShipmentTrackingClients";
     private readonly int _expiryMinutes = int.Parse(configuration["JwtSettings:ExpiryMinutes"] ?? "60");
 
-    public string GenerateToken(string userId, string userName, IEnumerable<string> roles)
+    public string GenerateToken(string userId, string userName, IEnumerable<string> roles, string customerId)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -23,6 +23,7 @@ public sealed class JwtTokenService(IConfiguration configuration)
         {
             new(ClaimTypes.NameIdentifier, userId),
             new(ClaimTypes.Name, userName),
+            new("customer_id", customerId),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Iat,
                 DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),

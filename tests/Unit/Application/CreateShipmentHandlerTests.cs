@@ -18,6 +18,7 @@ public sealed class CreateShipmentHandlerTests
     public CreateShipmentHandlerTests()
     {
         _currentUserMock.Setup(u => u.UserName).Returns("testuser");
+        _currentUserMock.Setup(u => u.CustomerId).Returns("test-customer");
         _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         _handler = new CreateShipmentHandler(_repositoryMock.Object, _currentUserMock.Object, _cacheMock.Object);

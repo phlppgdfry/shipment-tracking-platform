@@ -17,6 +17,7 @@ namespace ShipmentTracking.WebAPI.Controllers;
 public sealed class DocumentsController(
     IMediator mediator,
     IDocumentRepository documentRepository,
+    IShipmentRepository shipmentRepository,
     IBlobStorageService blobStorage) : ControllerBase
 {
     /// <summary>
@@ -32,6 +33,7 @@ public sealed class DocumentsController(
         IFormFile file,
         CancellationToken ct)
     {
+        if (await shipmentRepository.GetByIdAsync(shipmentId, ct) is null) return NotFound();
         if (file.Length == 0)
             return BadRequest("Bestand is leeg.");
         if (!await FileSignatureValidator.MatchesDeclaredTypeAsync(file, ct))
@@ -58,6 +60,7 @@ public sealed class DocumentsController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDocuments(Guid shipmentId, CancellationToken ct)
     {
+        if (await shipmentRepository.GetByIdAsync(shipmentId, ct) is null) return NotFound();
         var documents = await documentRepository.GetByShipmentIdAsync(shipmentId, ct);
         return Ok(documents.Select(d => new
         {
@@ -74,7 +77,7 @@ public sealed class DocumentsController(
     public async Task<IActionResult> Download(Guid documentId, CancellationToken ct)
     {
         var document = await documentRepository.GetByIdAsync(documentId, ct);
-        if (document is null) return NotFound();
+        if (document is null || await shipmentRepository.GetByIdAsync(document.ShipmentId, ct) is null) return NotFound();
 
         var stream = await blobStorage.DownloadAsync(document.BlobUri, ct);
         return File(stream, document.ContentType, document.FileName);

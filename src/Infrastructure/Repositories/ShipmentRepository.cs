@@ -9,7 +9,7 @@ namespace ShipmentTracking.Infrastructure.Repositories;
 public sealed class ShipmentRepository(ApplicationDbContext db) : IShipmentRepository
 {
     public async Task<Shipment?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await db.Shipments.FindAsync([id], ct);
+        => await db.Shipments.FirstOrDefaultAsync(s => s.Id == id, ct);
 
     public async Task<Shipment?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)
         => await db.Shipments
@@ -56,7 +56,7 @@ public sealed class ShipmentRepository(ApplicationDbContext db) : IShipmentRepos
 public sealed class DocumentRepository(ApplicationDbContext db) : IDocumentRepository
 {
     public async Task<Document?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await db.Documents.FindAsync([id], ct);
+        => await db.Documents.FirstOrDefaultAsync(d => d.Id == id, ct);
 
     public async Task<IReadOnlyList<Document>> GetByShipmentIdAsync(Guid shipmentId, CancellationToken ct = default)
         => await db.Documents

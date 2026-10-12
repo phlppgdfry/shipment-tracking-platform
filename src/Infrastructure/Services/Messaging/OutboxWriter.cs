@@ -11,6 +11,7 @@ public sealed class OutboxWriter(ApplicationDbContext db) : IOutboxWriter
         db.OutboxMessages.Add(OutboxMessage.Create("ShipmentStatusChanged", JsonSerializer.Serialize(new
         {
             shipmentId,
+            customerId = db.CustomerId,
             trackingNumber,
             newStatus,
             occurredAt = DateTime.UtcNow

@@ -4,3 +4,12 @@
 .vs
 TestResults
 .env
+
+node_modules
+**/node_modules
+artifacts/*
+!artifacts/feed/
+!artifacts/feed/**
+demo/evidence
+
+.env*

@@ -1,5 +1,4 @@
 name: CI
-
 on:
   push:
     branches: [master]
@@ -7,6 +6,58 @@ on:
   workflow_dispatch:
     inputs:
       deploy:
+        description: Deploy the API to Azure Container Apps
+        required: false
+        default: false
+        type: boolean
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      SQL_SA_PASSWORD: PackageCI-Synthetic-Sql-123!
+      JWT_SECRET: package-ci-only-synthetic-jwt-key-12345678901234567890
+      DEMO_DISPATCHER_PASSWORD: PackageCI-Synthetic-Demo-123!
+      SHIPMENT_IMAGE: shipment-package:verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python3 scripts/prepare-demo.py
+      - run: dotnet restore ShipmentTracking.sln
+      - run: dotnet test ShipmentTracking.sln --configuration Release --no-restore --logger "trx;LogFileName=tests.trx"
+      - run: npm --prefix demo test
+      - run: docker build --file src/WebAPI/Dockerfile --tag "$SHIPMENT_IMAGE" .
+      - name: Start candidate against a real SQL Server
+        run: docker compose -f docker-compose.package.yml up -d --wait --wait-timeout 300
+      - name: Install browser
+        working-directory: demo
+        run: npx playwright install --with-deps chromium
+      - name: Verify desktop and mobile workflow
+        working-directory: demo
+        run: npm run test:browser
+      - name: Verify real JWT isolation and API recovery
+        run: python3 scripts/package-smoke.py
+      - name: Capture failure logs
+        if: failure()
+        run: docker compose -f docker-compose.package.yml logs --no-color
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shipment-demo-proof
+          path: |
+            demo/evidence/
+            **/TestResults/*.trx
+      - name: Stop synthetic demonstration
+        if: always()
+        run: docker compose -f docker-compose.package.yml down -v
+
+  deploy:
         description: Deploy the API to Azure Container Apps
         required: false
         default: false
@@ -44,6 +95,10 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python3 scripts/prepare-demo.py
       - uses: azure/login@v2
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}

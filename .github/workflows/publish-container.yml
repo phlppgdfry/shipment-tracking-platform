@@ -4,12 +4,15 @@ on:
     types: [published]
 permissions:
   contents: read
+concurrency:
+  group: shipment-release-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
 jobs:
   publish:
     if: startsWith(github.event.release.tag_name, 'package-v')
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     env:
       SQL_SA_PASSWORD: PackageCI-Synthetic-Sql-123!
@@ -21,12 +24,30 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - run: dotnet test ShipmentTracking.sln --configuration Release --logger "trx;LogFileName=package-tests.trx"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python3 scripts/prepare-demo.py
+      - run: dotnet restore ShipmentTracking.sln
+      - run: dotnet test ShipmentTracking.sln --configuration Release --no-restore --logger "trx;LogFileName=tests.trx"
+      - run: npm --prefix demo test
+      - name: Validate release version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION=$(dotnet msbuild src/WebAPI/WebAPI.csproj -getProperty:Version)
+          test "$RELEASE_TAG" = "package-v$VERSION"
       - name: Build candidate
-        run: docker build --file src/WebAPI/Dockerfile --tag "$SHIPMENT_IMAGE" --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" --label "org.opencontainers.image.description=Shipment tracking API with SQL Server persistence, JWT authentication and a synthetic local demo" --label "org.opencontainers.image.licenses=MIT" .
-      - name: Start real database and packaged API
+        run: docker build --file src/WebAPI/Dockerfile --tag "$SHIPMENT_IMAGE" --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" --label "org.opencontainers.image.description=Customer-scoped shipment API and evidence-driven synthetic operations desk" --label "org.opencontainers.image.licenses=MIT" .
+      - name: Start candidate against a real SQL Server
         run: docker compose -f docker-compose.package.yml up -d --wait --wait-timeout 300
-      - name: Exercise packaged API
+      - name: Install browser
+        working-directory: demo
+        run: npx playwright install --with-deps chromium
+      - name: Verify desktop and mobile workflow
+        working-directory: demo
+        run: npm run test:browser
+      - name: Verify real JWT isolation and API recovery
         run: python3 scripts/package-smoke.py
       - name: Log in to GitHub Container Registry
         env:
@@ -37,18 +58,30 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           VERSION="${RELEASE_TAG#package-v}"
-          docker tag "$SHIPMENT_IMAGE" "ghcr.io/${{ github.repository_owner }}/shipment-tracking-api:$VERSION"
-          docker tag "$SHIPMENT_IMAGE" "ghcr.io/${{ github.repository_owner }}/shipment-tracking-api:latest"
-          docker push "ghcr.io/${{ github.repository_owner }}/shipment-tracking-api:$VERSION"
-          docker push "ghcr.io/${{ github.repository_owner }}/shipment-tracking-api:latest"
+          IMAGE="ghcr.io/${{ github.repository_owner }}/shipment-tracking-api"
+          if docker manifest inspect "$IMAGE:$VERSION" >/dev/null 2>&1; then
+            echo "::error::This version already exists. Publish a new version rather than replacing it."
+            exit 1
+          fi
+          docker tag "$SHIPMENT_IMAGE" "$IMAGE:$VERSION"
+          docker tag "$SHIPMENT_IMAGE" "$IMAGE:latest"
+          docker push "$IMAGE:$VERSION"
+          docker push "$IMAGE:latest"
+      - name: Attach verification evidence
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" demo/evidence/desktop-baseline.png demo/evidence/desktop-complete.png demo/evidence/mobile.png demo/evidence/browser-proof.json demo/evidence/api-proof.json demo/evidence/shipment-desk-walkthrough.webm docs/assets/shipment-desk-walkthrough.mp4 --clobber
       - name: Capture failure logs
         if: failure()
         run: docker compose -f docker-compose.package.yml logs --no-color
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: package-test-results
-          path: '**/TestResults/*.trx'
-      - name: Clean up demonstration
+          name: shipment-demo-proof
+          path: |
+            demo/evidence/
+            **/TestResults/*.trx
+      - name: Stop synthetic demonstration
         if: always()
         run: docker compose -f docker-compose.package.yml down -v

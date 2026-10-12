@@ -79,6 +79,7 @@ if (string.IsNullOrWhiteSpace(builder.Configuration["Azure:BlobStorage:Connectio
 else
     builder.Services.AddSingleton<IBlobStorageService, BlobStorageService>();
 builder.Services.AddScoped<IOutboxWriter, OutboxWriter>();
+builder.Services.AddScoped<IShipmentReleasePolicy, ShipmentReleasePolicy>();
 builder.Services.AddHostedService<ShipmentEventsWorker>();
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
@@ -101,7 +102,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+    options.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .RequireAssertion(context => !string.IsNullOrWhiteSpace(context.User.FindFirst("customer_id")?.Value))
+        .Build());
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
     {
         options.Password.RequiredLength = 12;
@@ -160,7 +165,7 @@ builder.Services.AddSwaggerGen(c =>
     if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new ShipmentTracking.WebAPI.Security.ExplicitOffsetConverter()));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>("sql");
 
@@ -174,8 +179,8 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNEC
 var app = builder.Build();
 
 // ── Middleware pipeline ───────────────────────────────────────────────────────
+app.UseSerilogRequestLogging();
 app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseMiddleware<IdempotencyMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -187,11 +192,14 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseSerilogRequestLogging();
-app.UseHttpsRedirection();
+app.UseDefaultFiles();
+app.UseStaticFiles();
+if (!app.Environment.IsDevelopment()) app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+// Authorization must run before replaying any saved response.
+app.UseMiddleware<IdempotencyMiddleware>();
 app.MapControllers().RequireRateLimiting("api");
 app.MapHealthChecks("/health");
 app.MapHealthChecks("/ready");

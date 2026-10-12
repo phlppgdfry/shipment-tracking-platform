@@ -16,8 +16,9 @@ public sealed class GlobalExceptionMiddleware(RequestDelegate next, ILogger<Glob
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Onbehandelde uitzondering voor {Method} {Path}",
-                context.Request.Method, context.Request.Path);
+            if (ex is ValidationException or DomainException)
+                logger.LogInformation("Rejected {Method} {Path}: {Reason}", context.Request.Method, context.Request.Path, ex.Message);
+            else logger.LogError(ex, "Unexpected failure for {Method} {Path}", context.Request.Method, context.Request.Path);
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -64,6 +65,9 @@ public sealed class GlobalExceptionMiddleware(RequestDelegate next, ILogger<Glob
 // CurrentUserService — leest claims uit JWT
 public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUserService
 {
+    public string CustomerId =>
+        httpContextAccessor.HttpContext?.User.FindFirst("customer_id")?.Value ?? string.Empty;
+
     public string UserId =>
         httpContextAccessor.HttpContext?.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
         ?? "anonymous";

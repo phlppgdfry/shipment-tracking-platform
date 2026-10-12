@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "url": "http://localhost:5001",
+  "title": "Shipment Desk — logistics demonstration",
+  "viewports": [
+    [
+      1505,
+      1045
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "checks": [
+    "identity",
+    "nonblank",
+    "no-framework-overlay",
+    "console",
+    "baseline-metrics",
+    "source-evidence-inspection",
+    "clock-recalculation",
+    "invalid-clock-recovery",
+    "filter",
+    "create",
+    "invalid-status-recovery",
+    "upload",
+    "download",
+    "guided-scenario",
+    "mobile-overflow",
+    "logout",
+    "customer-switch-clears-prior-data"
+  ],
+  "expectedValidationErrors": 1,
+  "unexpectedErrors": [],
+  "baseline": {
+    "onTime": "50%",
+    "overdue": 1,
+    "meanDwellHours": 3,
+    "openHolds": 1
+  },
+  "afterGuidedScenario": {
+    "onTime": "33.3%",
+    "overdue": 1,
+    "meanDwellHours": 2.5,
+    "openHolds": 1
+  }
+}

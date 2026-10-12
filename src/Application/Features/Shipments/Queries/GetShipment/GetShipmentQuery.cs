@@ -43,12 +43,13 @@ public sealed record DocumentDto(
     DateTime UploadedAt);
 
 // --- Handler ---
-public sealed class GetShipmentHandler(IShipmentRepository repository, IShipmentCache cache)
+public sealed class GetShipmentHandler(IShipmentRepository repository, IShipmentCache cache, ICurrentUserService currentUser)
     : IRequestHandler<GetShipmentQuery, ShipmentDetailDto>
 {
     public async Task<ShipmentDetailDto> Handle(GetShipmentQuery query, CancellationToken ct)
     {
-        var cacheKey = $"shipments:detail:{query.ShipmentId:N}";
+        if (string.IsNullOrWhiteSpace(currentUser.CustomerId)) throw new ShipmentNotFoundException(query.ShipmentId);
+        var cacheKey = $"shipments:detail:{currentUser.CustomerId}:{query.ShipmentId:N}";
         var cached = await cache.GetAsync(cacheKey, ct);
         if (cached is not null)
         {

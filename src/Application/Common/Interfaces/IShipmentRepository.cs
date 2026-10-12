@@ -47,6 +47,12 @@ public interface IShipmentCache
 
 public interface ICurrentUserService
 {
+    string CustomerId { get; }
     string UserId { get; }
     string UserName { get; }
+}
+
+public interface IShipmentReleasePolicy
+{
+    Task<bool> HasUnresolvedHoldsAsync(Guid shipmentId, CancellationToken ct = default);
 }

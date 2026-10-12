@@ -43,3 +43,12 @@ Thumbs.db
 
 ## Docker
 docker-compose.override.yml
+
+artifacts/
+node_modules/
+src/WebAPI/wwwroot/vendor/
+demo/evidence/
+
+.env.*
+!.env.example
+!.env.package.example

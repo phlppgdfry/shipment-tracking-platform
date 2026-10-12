@@ -16,6 +16,7 @@ public sealed class UpdateShipmentStatusValidator : AbstractValidator<UpdateShip
     public UpdateShipmentStatusValidator()
     {
         RuleFor(x => x.ShipmentId).NotEmpty();
+        RuleFor(x => x.NewStatus).IsInEnum();
         RuleFor(x => x.Notes).NotEmpty().MaximumLength(500);
     }
 }
@@ -24,7 +25,8 @@ public sealed class UpdateShipmentStatusHandler(
     IShipmentRepository repository,
     IOutboxWriter outbox,
     ICurrentUserService currentUser,
-    IShipmentCache cache)
+    IShipmentCache cache,
+    IShipmentReleasePolicy releasePolicy)
     : IRequestHandler<UpdateShipmentStatusCommand>
 {
     public async Task Handle(UpdateShipmentStatusCommand command, CancellationToken ct)
@@ -32,12 +34,14 @@ public sealed class UpdateShipmentStatusHandler(
         var shipment = await repository.GetByIdAsync(command.ShipmentId, ct)
             ?? throw new ShipmentNotFoundException(command.ShipmentId);
 
+        if (command.NewStatus is ShipmentStatus.OutForDelivery or ShipmentStatus.Delivered && await releasePolicy.HasUnresolvedHoldsAsync(shipment.Id, ct))
+            throw new DomainException("Active operational holds must be released before delivery.");
         shipment.UpdateStatus(command.NewStatus, command.Notes, currentUser.UserName);
         // The outbox row and shipment status are written by the same DbContext transaction.
         await outbox.EnqueueShipmentStatusChangedAsync(shipment.Id, shipment.TrackingNumber, command.NewStatus.ToString(), ct);
         await repository.SaveChangesAsync(ct);
-        await cache.RemoveAsync($"shipments:detail:{shipment.Id:N}", ct);
-        await cache.RemoveAsync("shipments:list", ct);
+        await cache.RemoveAsync($"shipments:detail:{currentUser.CustomerId}:{shipment.Id:N}", ct);
+        await cache.RemoveAsync($"shipments:list:{currentUser.CustomerId}", ct);
 
     }
 }

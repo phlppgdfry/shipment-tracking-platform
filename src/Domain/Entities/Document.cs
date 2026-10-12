@@ -3,6 +3,7 @@ namespace ShipmentTracking.Domain.Entities;
 public sealed class Document
 {
     public Guid Id { get; private set; }
+    public string CustomerId { get; private set; } = string.Empty;
     public Guid ShipmentId { get; private set; }
     public string FileName { get; private set; } = string.Empty;
     public string ContentType { get; private set; } = string.Empty;
@@ -19,7 +20,8 @@ public sealed class Document
         string contentType,
         long fileSizeBytes,
         string blobUri,
-        string uploadedBy) => new()
+        string uploadedBy,
+        string customerId = "") => new()
     {
         Id = Guid.NewGuid(),
         ShipmentId = shipmentId,
@@ -28,6 +30,7 @@ public sealed class Document
         FileSizeBytes = fileSizeBytes,
         BlobUri = blobUri,
         UploadedBy = uploadedBy,
+        CustomerId = customerId,
         UploadedAt = DateTime.UtcNow
     };
 }

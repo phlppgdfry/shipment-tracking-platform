@@ -36,7 +36,8 @@ public sealed class UploadDocumentHandler(
     IShipmentRepository shipmentRepository,
     IDocumentRepository documentRepository,
     IBlobStorageService blobStorage,
-    ICurrentUserService currentUser)
+    ICurrentUserService currentUser,
+    IShipmentCache cache)
     : IRequestHandler<UploadDocumentCommand, Guid>
 {
     public async Task<Guid> Handle(UploadDocumentCommand command, CancellationToken ct)
@@ -56,12 +57,13 @@ public sealed class UploadDocumentHandler(
             command.ContentType,
             command.FileSizeBytes,
             blobUri,
-            currentUser.UserName);
+            currentUser.UserName, shipment.CustomerId);
 
         shipment.AddDocument(document);
         await documentRepository.AddAsync(document, ct);
         await documentRepository.SaveChangesAsync(ct);
 
+        await cache.RemoveAsync($"shipments:detail:{currentUser.CustomerId}:{shipment.Id:N}", ct);
         return document.Id;
     }
 }

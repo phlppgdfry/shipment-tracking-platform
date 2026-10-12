@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "synthetic": true,
+  "checks": [
+    "health and authentication",
+    "same-key replay, conflicting-body rejection, no unauthenticated replay",
+    "PDF upload/download and cache invalidation",
+    "hold restriction, release, event replay and full status recovery",
+    "real JWT customer isolation, cache boundary, document boundary and no client-selected membership/role escalation"
+  ]
+}

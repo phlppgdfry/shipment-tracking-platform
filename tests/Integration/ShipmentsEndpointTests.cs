@@ -31,11 +31,13 @@ public sealed class TestAuthHandler(
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        if (Request.Headers.ContainsKey("X-Test-Anonymous")) return Task.FromResult(AuthenticateResult.NoResult());
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, "test-user-id"),
+            new Claim(ClaimTypes.NameIdentifier, Request.Headers["X-Test-User"].FirstOrDefault() ?? "test-user-id"),
+            new Claim("customer_id", Request.Headers["X-Test-Customer"].FirstOrDefault() ?? "test-customer"),
             new Claim(ClaimTypes.Name, "testuser"),
-            new Claim(ClaimTypes.Role, "Dispatcher"),
+            new Claim(ClaimTypes.Role, Request.Headers["X-Test-Role"].FirstOrDefault() ?? "Dispatcher"),
         };
         var identity = new ClaimsIdentity(claims, "Test");
         var principal = new ClaimsPrincipal(identity);

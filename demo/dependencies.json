@@ -1,0 +1,13 @@
+{
+  "contracts": {
+    "version": "0.2.0",
+    "url": "https://github.com/phlppgdfry/portops-ai/releases/download/contracts-v0.2.0/PortOps.Contracts.0.2.0.nupkg",
+    "sha256": "728c31d4cc0517c99933c954e6fe8d6ca8ae775553e3a6dcff32f7a9b48ff0fa"
+  },
+  "kpi": {
+    "version": "0.2.0",
+    "source": "Verified GitHub release tarball; installed as a local file with locked integrity",
+    "url": "https://github.com/phlppgdfry/logistics-kpi-utils/releases/download/v0.2.0/phlppgdfry-logistics-kpi-utils-0.2.0.tgz",
+    "sha256": "ff8a60033f4976a177c0caa6bd743600823bbc3d95151e428eaa252dccdfbb1f"
+  }
+}

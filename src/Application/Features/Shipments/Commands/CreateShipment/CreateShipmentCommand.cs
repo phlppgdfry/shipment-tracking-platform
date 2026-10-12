@@ -68,11 +68,11 @@ public sealed class CreateShipmentHandler(
             command.RecipientAddress,
             command.Description,
             command.WeightKg,
-            currentUser.UserName);
+            currentUser.UserName, currentUser.CustomerId);
 
         await repository.AddAsync(shipment, ct);
         await repository.SaveChangesAsync(ct);
-        await cache.RemoveAsync("shipments:list", ct);
+        await cache.RemoveAsync($"shipments:list:{currentUser.CustomerId}", ct);
 
         return new CreateShipmentResult(shipment.Id, shipment.TrackingNumber);
     }

@@ -10,7 +10,7 @@ public sealed class TrackingNumber : IEquatable<TrackingNumber>
     {
         var prefix = "STP";
         var timestamp = DateTime.UtcNow.ToString("yyyyMMdd");
-        var random = Random.Shared.Next(1000, 9999);
+        var random = Guid.NewGuid().ToString("N")[..12].ToUpperInvariant();
         return new TrackingNumber($"{prefix}-{timestamp}-{random}");
     }
 

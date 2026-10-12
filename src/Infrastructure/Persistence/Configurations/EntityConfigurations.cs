@@ -30,6 +30,8 @@ public sealed class ShipmentConfiguration : IEntityTypeConfiguration<Shipment>
             .HasConversion<string>()
             .HasMaxLength(50);
 
+        builder.Property(s => s.CustomerId).HasMaxLength(64).IsRequired();
+        builder.HasIndex(s => s.CustomerId);
         builder.Property(s => s.CreatedBy).HasMaxLength(256).IsRequired();
 
         builder.HasMany(s => s.StatusHistory)
@@ -51,6 +53,7 @@ public sealed class ShipmentStatusHistoryConfiguration : IEntityTypeConfiguratio
     public void Configure(EntityTypeBuilder<ShipmentStatusHistory> builder)
     {
         builder.HasKey(h => h.Id);
+        builder.Property(h => h.Id).ValueGeneratedNever();
         builder.Property(h => h.Status).HasConversion<string>().HasMaxLength(50);
         builder.Property(h => h.Notes).HasMaxLength(500);
         builder.Property(h => h.ChangedBy).HasMaxLength(256);
@@ -63,6 +66,7 @@ public sealed class DocumentConfiguration : IEntityTypeConfiguration<Document>
     public void Configure(EntityTypeBuilder<Document> builder)
     {
         builder.HasKey(d => d.Id);
+        builder.Property(d => d.CustomerId).HasMaxLength(64).IsRequired();
         builder.Property(d => d.FileName).HasMaxLength(255).IsRequired();
         builder.Property(d => d.ContentType).HasMaxLength(100).IsRequired();
         builder.Property(d => d.BlobUri).HasMaxLength(1000).IsRequired();

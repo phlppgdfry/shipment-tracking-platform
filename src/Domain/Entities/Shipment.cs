@@ -32,6 +32,7 @@ public sealed class Shipment
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
     public string CreatedBy { get; private set; } = string.Empty;
+    public string CustomerId { get; private set; } = string.Empty;
 
     private readonly List<ShipmentStatusHistory> _statusHistory = [];
     public IReadOnlyList<ShipmentStatusHistory> StatusHistory => _statusHistory.AsReadOnly();
@@ -50,7 +51,8 @@ public sealed class Shipment
         string recipientAddress,
         string description,
         decimal weightKg,
-        string createdBy)
+        string createdBy,
+        string customerId = "")
     {
         if (weightKg <= 0)
             throw new DomainException("Gewicht moet groter zijn dan 0 kg.");
@@ -69,7 +71,8 @@ public sealed class Shipment
             IsDeleted = false,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            CreatedBy = createdBy
+            CreatedBy = createdBy,
+            CustomerId = customerId
         };
 
         shipment._statusHistory.Add(ShipmentStatusHistory.Create(
