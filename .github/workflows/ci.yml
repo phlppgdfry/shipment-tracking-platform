@@ -57,33 +57,6 @@ jobs:
         if: always()
         run: docker compose -f docker-compose.package.yml down -v
 
-  deploy:
-        description: Deploy the API to Azure Container Apps
-        required: false
-        default: false
-        type: boolean
-
-permissions:
-  contents: read
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-      - run: dotnet restore ShipmentTracking.sln
-      - run: dotnet build ShipmentTracking.sln --configuration Release --no-restore
-      - run: dotnet test ShipmentTracking.sln --configuration Release --no-build --logger "trx;LogFileName=tests.trx"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results
-          path: "**/TestResults/*.trx"
-          if-no-files-found: ignore
-      - run: docker build --file src/WebAPI/Dockerfile --tag shipment-tracking-api:${{ github.sha }} .
 
   deploy:
     if: github.event_name == 'workflow_dispatch' && inputs.deploy
