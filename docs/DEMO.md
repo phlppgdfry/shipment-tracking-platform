@@ -14,6 +14,17 @@ The helper creates a private `.env` only when none exists, generates separate st
 
 The published image is linux/amd64. SQL Server uses its Developer edition for this local demonstration. On Apple Silicon, Docker emulation must support SQL Server; resource and compatibility requirements are described in [PACKAGE.md](PACKAGE.md). Allocate sufficient memory to Docker. A new machine may spend time downloading images; automated verification is not a human usability study or a universal setup-time promise.
 
+## How the pieces connect
+
+```mermaid
+flowchart LR
+    Contracts["PortOps.Contracts · NuGet<br/>Shared evidence format"] --> API["Shipment Tracking API<br/>JWT + SQL + documents"]
+    API --> Desk["Shipment Desk<br/>Timeline + source evidence"]
+    KPI["Logistics KPI Utils · npm<br/>Clock-aware calculations"] --> Desk
+```
+
+The API stores and authorizes evidence; the contracts define its shape; the KPI library calculates results in the browser. The [delivery board](https://github.com/users/phlppgdfry/projects/6) links the implementation issues to release and verification evidence.
+
 ## The baseline
 
 The analytical clock starts at **12 October 2026, 12:00 UTC**. Planning evidence is observed at 04:00; gate and hold evidence is observed two minutes after its occurrence. Receipt time in SQL is the actual server receipt time.

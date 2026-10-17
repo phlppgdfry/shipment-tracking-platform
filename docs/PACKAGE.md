@@ -2,7 +2,13 @@
 
 **Preview 0.2.0 · .NET 10 · linux/amd64 · synthetic local demonstration.** The image contains the existing application, not a replacement demo API. It uses SQL Server, JWT authentication, role-restricted shipment writes, an outbox and local document storage. Redis and Azure integrations are optional.
 
-## Run the published image
+## Recommended first run
+
+With Python 3 and Docker Desktop running, execute `python3 scripts/start-demo.py` from a clone of this repository. The helper generates private local credentials and starts the published image. Open **http://localhost:5001** for Shipment Desk. The dispatcher password is in your local `.env`; `/swagger` exposes the API documentation.
+
+[Five-step walkthrough and expected KPIs](DEMO.md) · [Recorded flow](assets/shipment-desk-walkthrough.mp4) · [Verification evidence](VERIFICATION.md)
+
+## Manual configuration
 
 Requires Docker Compose, an amd64-compatible Docker environment and enough memory for SQL Server (at least 2 GB available to SQL Server; allocate 4 GB or more to Docker). Apple Silicon uses amd64 emulation; compatibility and speed depend on Docker's emulation settings. The image is not a native ARM build.
 
@@ -19,6 +25,18 @@ Passwords must have at least 12 characters, uppercase, lowercase, a digit and pu
 Sign in at `POST /api/auth/login` with userName `demo-dispatcher` and the password you set in `DEMO_DISPATCHER_PASSWORD`. Copy the returned access token into Swagger's **Authorize** field. Three synthetic baseline shipments and their source events are seeded. You can list, create and inspect shipments. New public registrations receive the Customer role and cannot create shipments.
 
 The opt-in `Demo__Seed=true` flag works only in Development. Restarting does not duplicate the seeded shipment or reset an existing dispatcher's password. Changing `.env` passwords does not change accounts already stored in the SQL volume; use a fresh demo volume when necessary. Never enable this demonstration setup for a production deployment.
+
+## If setup does not work
+
+| Symptom | Check |
+| --- | --- |
+| Docker cannot be reached | Start Docker Desktop and wait until its engine is ready, then rerun the helper. |
+| SQL fails to start or readiness times out | Check the memory and amd64 requirements above; inspect `docker compose -p shipment-desk -f docker-compose.package.yml logs sql api` locally. |
+| Port 5001 is already occupied | Stop the other service using that port before retrying. |
+| Sign-in fails after changing `.env` | Existing SQL accounts keep their original passwords; editing the file does not update them. |
+| The dashboard differs from the baseline | The tour creates persistent records. Existing demo data survives restarts; see storage and cleanup below. |
+
+The helper uses Compose project `shipment-desk`. Include `-p shipment-desk` in manual Compose commands when managing its containers and volumes. Keep local logs/configuration private if they contain sensitive values.
 
 ## Automated smoke check
 

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/phlppgdfry/shipment-tracking-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/phlppgdfry/shipment-tracking-platform/actions/workflows/ci.yml)
 
-Production-minded .NET 10 platform for creating, tracking and auditing logistics shipments. The API follows Clean Architecture and CQRS, while local infrastructure mirrors the Azure services used in deployment.
+A .NET 10 portfolio application for creating, tracking and auditing logistics shipments. **Shipment Desk** turns arrival evidence, documents and holds into an inspectable workflow with explicit KPI definitions. The API follows Clean Architecture and CQRS; Azure deployment templates are included.
 
 ## Try the connected Shipment Desk
 
