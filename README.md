@@ -2,6 +2,12 @@
 
 [![CI](https://github.com/phlppgdfry/shipment-tracking-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/phlppgdfry/shipment-tracking-platform/actions/workflows/ci.yml)
 
+<!-- showcase:start -->
+> **[▶ Live showcase](https://phlppgdfry.github.io/shipment-tracking-platform/)** — step through the guided scenario with the real KPI library, watch the recorded workflow, and see screenshots of the released 0.2.0 desk.
+
+[![Live showcase: shipment-tracking-platform](site/demo.png)](https://phlppgdfry.github.io/shipment-tracking-platform/)
+<!-- showcase:end -->
+
 A .NET 10 portfolio application for creating, tracking and auditing logistics shipments. **Shipment Desk** turns arrival evidence, documents and holds into an inspectable workflow with explicit KPI definitions. The API follows Clean Architecture and CQRS; Azure deployment templates are included.
 
 ## Try the connected Shipment Desk

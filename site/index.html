@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shipment Desk — from a shipment to operational evidence</title>
+<meta name="description" content="A .NET 10 shipment tracking API with Clean Architecture, CQRS, SQL Server, JWT and a transactional outbox, plus Shipment Desk: a browser front end that turns arrivals, holds and documents into clock-aware KPIs.">
+<link rel="canonical" href="https://phlppgdfry.github.io/shipment-tracking-platform/">
+<meta property="og:type" content="website"><meta property="og:title" content="Shipment Desk — from a shipment to operational evidence"><meta property="og:description" content="A .NET 10 shipment tracking API with Clean Architecture, CQRS, SQL Server, JWT and a transactional outbox, plus Shipment Desk: a browser front end that turns arrivals, holds and documents into clock-aware KPIs.">
+<meta property="og:url" content="https://phlppgdfry.github.io/shipment-tracking-platform/"><meta property="og:image" content="https://phlppgdfry.github.io/shipment-tracking-platform/og.jpg"><meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0d12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232dd4bf'/%3E%3C/svg%3E">
+<link rel="preload" href="assets/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/showcase.css">
+<style>:root{--brand:#2dd4bf;--accent-ink:#04140f}
+#sd-tiles{grid-template-columns:1.6fr 1fr 1fr 1fr}#sd-tiles .big{grid-column:auto}
+@media (max-width:520px){#sd-tiles{grid-template-columns:1fr 1fr}#sd-tiles .big{grid-column:span 2}}
+.sd-steps{display:flex;gap:6px;flex-wrap:wrap}
+.sd-steps button{font:500 13px var(--sans);padding:8px 12px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2);color:var(--muted);cursor:pointer}
+.sd-steps button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:600}
+.sd-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-top:16px}
+.sd-grid>*{min-width:0}
+@media (max-width:900px){.sd-grid{grid-template-columns:1fr}}
+.sd-new td{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.sd-tl{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:14px}
+.sd-tl ol{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid var(--line2)}
+.sd-tl li{position:relative;padding:6px 0 6px 10px;font-size:14px}
+.sd-tl li::before{content:"";position:absolute;left:-21px;top:12px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.sd-tl li.future{opacity:.5}.sd-tl li.future::before{background:var(--bg2);border:2px solid var(--line2)}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap">
+  <a class="brand" href="#"><i class="dot"></i><span>Shipment Desk</span></a>
+  <nav><a class="" href="#demo">Try it</a><a class="" href="#how">How it works</a><a class="hide-sm" href="#screens">Screens</a><a class="hide-sm" href="#run">Run it</a><a href="https://github.com/phlppgdfry/shipment-tracking-platform" aria-label="GitHub repository">GitHub</a><button class="theme" type="button" aria-label="Toggle light or dark theme"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></nav>
+</div></div>
+<main>
+<header class="hero"><div class="wrap grid">
+  <div>
+    <div class="kicker"><span>.NET 10 · CQRS · SQL Server · Azure-ready</span><span class="chip status">Pre-release 0.2.0</span></div>
+    <h1>Every KPI on this desk <em>points back to evidence</em>.</h1>
+    <p class="lede">Shipment Desk records plans, gate events, customs holds and documents through a real .NET API backed by SQL Server. The dashboard calculates punctuality and dwell at an explicit scenario clock, shows what it excluded, and keeps every customer's shipments isolated on the server.</p>
+    <div class="ctas"><a class="btn primary" href="#demo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Step through the scenario</a><a class="btn" href="https://github.com/phlppgdfry/shipment-tracking-platform"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg> Source on GitHub</a></div>
+    <div class="stack"><span class="chip">.NET 10</span><span class="chip">ASP.NET Core</span><span class="chip">MediatR CQRS</span><span class="chip">EF Core · SQL Server</span><span class="chip">JWT</span><span class="chip">Service Bus outbox</span><span class="chip">Redis</span><span class="chip">Docker</span><span class="chip">Bicep</span></div>
+  </div>
+  <div class="hero-visual"><div class="frame"><div class="bar"><i></i><i></i><i></i><b>localhost:5001 · Shipment Desk</b></div><img src="img/docs-assets-shipment-desk-desktop.webp" alt="Shipment Desk" width="1505" height="1178"></div><div class="caption">The real app with its synthetic baseline, captured from a local run of the released image.</div></div>
+</div></header>
+<section id="why"><div class="wrap">
+  <p class="eyebrow">Why it exists</p><h2>Operations dashboards round off the awkward parts.</h2>
+  <div class="problem">
+    <div class="card before"><div class="label">Without it</div><p>A shipment that never showed up quietly disappears from the on-time rate. A hold that is still open sits in an email. A retried request creates a duplicate shipment, and nobody can say which number on the screen came from which event.</p></div>
+    <div class="card after"><div class="label">With it</div><p>Shipments, gate events, holds and documents are stored as evidence with observation times. KPIs are computed at a chosen clock with visible denominators. Retries replay safely with idempotency keys, and each customer only ever sees its own shipments.</p></div>
+  </div>
+</div></section>
+<section id="demo"><div class="wrap">
+  <p class="eyebrow">Try it · runs in your browser</p><h2>Step through the guided scenario</h2>
+  <p class="sub">This replays the five-step scenario from <a href="https://github.com/phlppgdfry/shipment-tracking-platform/blob/master/docs/DEMO.md">docs/DEMO.md</a> with the same baseline. The numbers come from the released <a href="https://phlppgdfry.github.io/logistics-kpi-utils/">Logistics KPI Utils</a> file, the library Shipment Desk itself uses. Pick a step, then drag the clock back to 08:10 to see evidence that is not observed yet.</p>
+  <div class="demo"><div class="sd-steps" id="sd-steps"></div>
+<div class="row" style="margin-top:14px">
+  <div><label for="sd-clock">Scenario clock: <b id="sd-clockv" class="mono">12:00Z</b></label><input id="sd-clock" type="range" min="240" max="840" step="5" value="720"></div>
+  <div class="small dim" id="sd-explain" style="align-self:end"></div>
+</div>
+<div class="kpi-tiles" id="sd-tiles"></div>
+<div class="sd-grid">
+  <div class="scroll-x"><table class="tbl" id="sd-table"></table></div>
+  <div class="sd-tl"><div class="small dim" style="margin-bottom:8px">Evidence timeline · <b id="sd-tl-name"></b></div><ol id="sd-tl"></ol></div>
+</div>
+</div>
+  <p class="note">Browser-only replay: no API calls are made here. In the real app every step is an authenticated request that writes to SQL Server; the recorded video below shows that run.</p>
+</div></section>
+<section id="how"><div class="wrap">
+  <p class="eyebrow">How it works</p><h2>A production-shaped API behind a small desk</h2>
+  
+  <div class="cards"><div class="card"><div class="ic">01</div><h3>Clean Architecture and CQRS</h3><p>Domain, Application, Infrastructure and WebAPI projects. Commands and queries through MediatR, validation with FluentValidation.</p></div><div class="card"><div class="ic">02</div><h3>Safe retries</h3><p><code>Idempotency-Key</code> on shipment creation replays the original response. The same event ID with changed evidence is rejected as a conflict.</p></div><div class="card"><div class="ic">03</div><h3>Customer isolation</h3><p>Customer boundaries are owned by the server and the JWT, never by a query parameter. Caches and replays are scoped per customer.</p></div><div class="card"><div class="ic">04</div><h3>Reliable side effects</h3><p>A transactional outbox publishes to Service Bus with retry metadata and dead-lettering. Documents go to Blob Storage with signature checks on upload.</p></div></div>
+  <h3 style="margin:34px 0 14px">The flow, step by step</h3><div class="flow" role="list"><div class="node"><div class="n">01</div><b>Shipment created</b><small>idempotent POST, JWT customer scope</small></div><div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="node"><div class="n">02</div><b>Evidence recorded</b><small>plan, gate in/out, holds, documents with observation times</small></div><div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="node hl"><div class="n">03</div><b>SQL + outbox</b><small>one transaction; a worker publishes events</small></div><div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="node"><div class="n">04</div><b>Shipment Desk</b><small>loads up to 100 visible shipments</small></div><div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="node"><div class="n">05</div><b>KPIs at a clock</b><small>Logistics KPI Utils, with denominators and exclusions</small></div></div>
+</div></section>
+<section id="screens"><div class="wrap">
+  <p class="eyebrow">Screens</p><h2>What it looks like</h2>
+  <p class="sub">Captured from the released 0.2.0 image with synthetic data. The video shows the guided scenario end to end.</p>
+  <div class="frame" style="margin-bottom:18px"><div class="bar"><i></i><i></i><i></i><b>Recorded workflow · 22 s</b></div><video controls preload="metadata" playsinline poster="img/docs-assets-shipment-desk-complete.webp" src="img/docs-assets-shipment-desk-walkthrough.mp4"></video></div><div class="gallery"><figure data-zoom="After the guided scenario — 33.3% on time over three completed arrivals, 2.5 h mean dwell, one hold still open."><div class="frame"><div class="bar"><i></i><i></i><i></i><b>localhost:5001 · Shipment Desk</b></div><img src="img/docs-assets-shipment-desk-complete.webp" alt="After the guided scenario" width="1505" height="1374" loading="lazy" decoding="async"></div><figcaption><b>After the guided scenario</b> 33.3% on time over three completed arrivals, 2.5 h mean dwell, one hold still open.</figcaption></figure><figure data-zoom="Recovering from a rejected action — A blocked status change is refused with a clear reason; nothing half-saves."><div class="frame"><div class="bar"><i></i><i></i><i></i><b>localhost:5001 · Shipment Desk</b></div><img src="img/docs-assets-shipment-desk-recovery.webp" alt="Recovering from a rejected action" width="1505" height="1263" loading="lazy" decoding="async"></div><figcaption><b>Recovering from a rejected action</b> A blocked status change is refused with a clear reason; nothing half-saves.</figcaption></figure><figure data-zoom="On a phone — The same desk in a single column."><div class="frame"><img src="img/docs-assets-shipment-desk-mobile.webp" alt="On a phone" width="390" height="2285" loading="lazy" decoding="async"></div><figcaption><b>On a phone</b> The same desk in a single column.</figcaption></figure></div>
+</div></section>
+<section id="evidence"><div class="wrap">
+  <p class="eyebrow">Evidence</p><h2>What is real, and what is not</h2>
+  
+  <div class="metrics"><div class="metric"><div class="v">0.2.0</div><div class="l">released image</div><div class="s">pre-release on GitHub with a one-command start script</div></div><div class="metric"><div class="v">2</div><div class="l">packages consumed</div><div class="s">PortOps.Contracts (NuGet) and Logistics KPI Utils (npm)</div></div><div class="metric"><div class="v">3</div><div class="l">test layers</div><div class="s">unit, HTTP and real-SQL tests, plus desktop and mobile browser checks</div></div></div>
+  <div class="honest" style="margin-top:18px">
+      <div class="card real"><h3><span class="pill ok">REAL</span> Built and verified</h3><ul><li>ASP.NET Core 10 API with JWT, roles, SQL Server, soft deletes and global error responses</li><li>Idempotency, outbox publisher, Redis cache invalidation, health and readiness endpoints</li><li>Docker Compose stack and a released image with a start script that generates local secrets</li><li>Verification evidence for API, browser and cold start in <code>docs/assets/*-proof.json</code></li></ul></div>
+      <div class="card sim"><h3><span class="pill warn">SIMULATED</span> Mocked or not built yet</h3><ul><li>All shipments, customers and documents are synthetic</li><li>Azure resources are described in Bicep; this is not a running production deployment</li><li>The published image is linux/amd64; Apple Silicon needs Docker emulation for SQL Server</li><li>No physical cargo release or customs system is involved</li></ul></div></div>
+</div></section>
+<section id="run"><div class="wrap two">
+  <div><p class="eyebrow">Run it yourself</p><h2>Run it locally</h2>
+  <p class="sub">The helper creates a private <code>.env</code> with generated SQL, dispatcher and JWT secrets, then starts the released image. No registry login or cloud account needed.</p>
+  <div class="code"><button class="copy" type="button">Copy</button><pre><code><span class="c"># Docker Desktop running, then from a clone:</span>
+git clone https://github.com/phlppgdfry/shipment-tracking-platform
+cd shipment-tracking-platform
+python3 scripts/start-demo.py
+<span class="c"># open http://localhost:5001 and follow the printed sign-in steps</span></code></pre></div></div>
+  <div><p class="eyebrow">Go deeper</p><h2>Read the source</h2>
+  <div class="links"><a href="https://github.com/phlppgdfry/shipment-tracking-platform"><span>Repository</span><span>github</span></a><a href="https://github.com/phlppgdfry/shipment-tracking-platform/blob/HEAD/docs/DEMO.md"><span>Scenario and first-run guide</span><span>demo</span></a><a href="https://github.com/phlppgdfry/shipment-tracking-platform/blob/HEAD/docs/CUSTOMER_ISOLATION.md"><span>Customer isolation</span><span>security</span></a><a href="https://github.com/phlppgdfry/shipment-tracking-platform/blob/HEAD/docs/VERIFICATION.md"><span>Verification evidence</span><span>proof</span></a><a href="https://github.com/phlppgdfry/shipment-tracking-platform/blob/HEAD/docs/architecture.md"><span>Architecture</span><span>docs</span></a><a href="https://phlppgdfry.github.io/logistics-kpi-utils/"><span>Logistics KPI Utils, the metrics library</span><span>live</span></a></div></div>
+</div></section></main>
+<footer><div class="wrap">
+  <span>Shipment Desk · A portfolio project by Philippe Godfroy</span>
+  <span><a href="https://www.philippegodfroy.com/work">More projects</a> · <a href="https://github.com/phlppgdfry/shipment-tracking-platform">Source</a></span>
+</div></footer>
+<script src="assets/showcase.js"></script>
+<script src="assets/demo.js" type="module"></script>
+</body></html>
