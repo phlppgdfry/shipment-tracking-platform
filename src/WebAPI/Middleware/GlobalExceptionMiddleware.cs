@@ -17,8 +17,8 @@ public sealed class GlobalExceptionMiddleware(RequestDelegate next, ILogger<Glob
         catch (Exception ex)
         {
             if (ex is ValidationException or DomainException)
-                logger.LogInformation("Rejected {Method} {Path}: {Reason}", context.Request.Method, context.Request.Path, ex.Message);
-            else logger.LogError(ex, "Unexpected failure for {Method} {Path}", context.Request.Method, context.Request.Path);
+                logger.LogInformation("Rejected {Method} {Path}: {Reason}", Sanitize(context.Request.Method), Sanitize(context.Request.Path.ToString()), Sanitize(ex.Message));
+            else logger.LogError(ex, "Unexpected failure for {Method} {Path}", Sanitize(context.Request.Method), Sanitize(context.Request.Path.ToString()));
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -60,6 +60,10 @@ public sealed class GlobalExceptionMiddleware(RequestDelegate next, ILogger<Glob
 
         await context.Response.WriteAsync(JsonSerializer.Serialize(response));
     }
+
+    // Strip CR/LF so a crafted path or message can't forge extra log lines.
+    private static string Sanitize(string value) =>
+        value.Replace("\r", string.Empty).Replace("\n", string.Empty);
 }
 
 // CurrentUserService — leest claims uit JWT
