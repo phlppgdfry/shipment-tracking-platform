@@ -14,7 +14,7 @@ permissions:
   contents: read
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # pinned: Playwright can't install browsers on ubuntu-26.04 yet
     env:
       SQL_SA_PASSWORD: PackageCI-Synthetic-Sql-123!
       JWT_SECRET: package-ci-only-synthetic-jwt-key-12345678901234567890
@@ -61,7 +61,7 @@ jobs:
   deploy:
     if: github.event_name == 'workflow_dispatch' && inputs.deploy
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # pinned: Playwright can't install browsers on ubuntu-26.04 yet
     environment: production
     permissions:
       id-token: write
