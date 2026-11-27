@@ -10,7 +10,7 @@ concurrency:
 jobs:
   publish:
     if: startsWith(github.event.release.tag_name, 'package-v')
-    runs-on: ubuntu-24.04  # pinned: Playwright can't install browsers on ubuntu-26.04 yet
+    runs-on: ubuntu-24.04 # pinned: Playwright can't install browsers on ubuntu-26.04 yet
     permissions:
       contents: write
       packages: write
